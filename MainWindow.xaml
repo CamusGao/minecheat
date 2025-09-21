@@ -1,0 +1,207 @@
+﻿<Window x:Class="Minecheat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:Minecheat"
+        mc:Ignorable="d"
+        Title="Minecheat"
+        Height="500"
+        Width="650"
+        MinWidth="500"
+        d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel, IsDesignTimeCreatable=False}">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Save info -->
+        <Grid Grid.Row="0" MinHeight="64">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Width="64"
+                   Height="64"
+                   Margin="0,0,8,0"
+                   Grid.Row="0"
+                   Grid.RowSpan="3"
+                   Grid.Column="0"
+                   Source="{Binding LevelIcon, TargetNullValue={x:Null}}"
+                   Visibility="{Binding SaveImageVisibility}"
+                   VerticalAlignment="Top"/>
+
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       Text="{Binding LevelName}"
+                       Margin="0,0,0,8"
+                       Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+            <TextBlock Grid.Row="1"
+                       Grid.Column="1"
+                       Text="{Binding SelectedSave.Version, TargetNullValue={x:Null}}"
+                       Style="{StaticResource CaptionTextBlockStyle}"/>
+
+            <TextBlock Grid.Row="2"
+                       Grid.Column="1"
+                       Text="{Binding SavePath}"
+                       Style="{StaticResource CaptionTextBlockStyle}"/>
+
+            <Button Content="选择存档"
+                    Grid.Row="0"
+                    Grid.RowSpan="3"
+                    Grid.Column="2"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Top"
+                    Command="{Binding SelectSaveCommand}"
+                    Style="{StaticResource AccentButtonStyle}"/>
+        </Grid>
+
+        <TabControl Grid.Row="1"
+            Margin="0,8"
+            Padding="8"
+            ItemsSource="{Binding FeatureModules}"
+            SelectedIndex="{Binding SelectedFeatureModuleIndex, Mode=TwoWay}"
+            DisplayMemberPath="ModuleTitle"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            IsEnabled="{Binding FeaturesEnabled}">
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Features}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding FeatureTitle}"
+                                    ToolTip="{Binding Tooltip}"
+                                    Margin="4"
+                                    Padding="16,8"
+                                    MinWidth="120"
+                                    Command="{Binding DataContext.InvokeFeatureCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+
+        <DataGrid Grid.Row="2"
+                  Height="120"
+                  ItemsSource="{Binding Logs}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserResizeRows="True"
+                  SelectionMode="Single"
+                  SelectionUnit="Cell"
+                  local:DataGridHelper.AutoScrollToEnd="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="时间"
+                                    Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss.fff}'}"
+                                    Width="80"
+                                    CanUserSort="False"
+                                    CanUserResize="False"/>
+                <DataGridTemplateColumn Header="消息"
+                                        Width="*"
+                                        CanUserSort="False"
+                                        CanUserResize="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataTemplate.Resources>
+                                <Thickness x:Key="TextControlBorderThemeThicknessFocused" Left="0" Top="0" Right="0" Bottom="0" />
+                                <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+                                <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+                            </DataTemplate.Resources>
+                            <TextBox Text="{Binding Message, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     IsReadOnlyCaretVisible="False"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     TextWrapping="Wrap"
+                                     VerticalAlignment="Stretch"
+                                     VerticalContentAlignment="Top"
+                                     Margin="0"
+                                     Padding="0"
+                                     FontSize="10"
+                                     MinHeight="10">
+                            </TextBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DefaultDataGridColumnHeaderStyle}">
+                    <Setter Property="Height" Value="16"/>
+                    <Setter Property="FontSize" Value="8"/>
+                    <Setter Property="Padding" Value="8,2"/>
+                    <Setter Property="MinHeight" Value="16" />
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="VerticalContentAlignment" Value="Top"/>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="8,4"/>
+                    <Setter Property="FontSize" Value="10" />
+                    <Setter Property="VerticalContentAlignment" Value="Top"/>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+
+        <Grid Grid.Row="0"
+              Grid.RowSpan="3"
+              Visibility="{Binding DataLoadingMaskVisibility}"
+              Background="#99FFFFFF">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ProgressBar Grid.Row="0"
+                             Width="200"
+                             IsIndeterminate="True"
+                             HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="1"
+                           Text="正在加载游戏数据..."
+                           Margin="0,8,0,0"
+                           HorizontalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
